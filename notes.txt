@@ -1,0 +1,12 @@
+Drink exchange.
+
+Bars represent different tokens, which need their own contracts / addresses
+Bars need to be able to sign up and create their own addresses
+
+Each bar has their own token / pool
+
+Each token has its own contract that when spent asks users to tip. Tip coin.
+
+Coin sent to home/bar contract it asks to tip bartender.
+
+Tip fund/exchange fee gets added to fund. 
