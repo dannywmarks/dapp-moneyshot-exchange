@@ -1,33 +1,53 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { orderBookLoadedSelector, orderBookSelector } from "../store/selectors";
-import Spinner from "./Spinner";
+import { 
+  orderBookLoadedSelector, 
+  orderBookSelector, 
+  barSelector, 
+  accountSelector,
+  orderFillingSelector, 
+} from "../store/selectors";
+import Spinner from "./Spinner"
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import { fillOrder } from '../store/interactions'
 
-const renderOrder = (order) => {
+const renderOrder = (order, props) => {
+  const {dispatch, bar, account } = props
   return (
-    <tr key={order.id}>
-      <td>{order.tokenAmount}</td>
-      <td className={`text-${order.orderTypeClass}`}>{order.tokenPrice}</td>
-      <td>{order.etherAmount}</td>
-    </tr>
-  )
-}
-
-
-
+    <OverlayTrigger
+      key={order.id}
+      placement="auto"
+      overlay={
+        <Tooltip id={order.id}>
+          {`Click here to ${order.orderFillAction}`}
+        </Tooltip>
+      }
+    >
+      <tr 
+        key={order.id}
+        className="order-book-order"
+        onClick = {(e) => fillOrder(dispatch, bar, order, account)}
+      >
+        <td>{order.tokenAmount}</td>
+        <td className={`text-${order.orderTypeClass}`}>{order.tokenPrice}</td>
+        <td>{order.etherAmount}</td>
+      </tr>
+    </OverlayTrigger>
+  );
+};
 
 const showOrderBook = (props) => {
   // render orders...
-  const { orderBook, showOrderBook } = props;
+  const { orderBook } = props;
   return (
     <tbody>
-      {orderBook.sellOrders.map(order => renderOrder(order,props))}
-     <tr>
+      {orderBook.sellOrders.map((order) => renderOrder(order, props))}
+      <tr>
         <th>SHOT</th>
         <th>SHOT/ETH</th>
         <th>ETH</th>
-     </tr>
-      {orderBook.buyOrders.map(order => renderOrder(order,props))}
+      </tr>
+      {orderBook.buyOrders.map((order) => renderOrder(order, props))}
     </tbody>
   );
 };
@@ -55,9 +75,13 @@ export class OrderBook extends Component {
 }
 
 function mapStateToProps(state) {
+  const orderBookLoaded = orderBookLoadedSelector(state)
+  const orderFilling = orderFillingSelector(state)
   return {
     orderBook: orderBookSelector(state),
-    showOrderBook: orderBookLoadedSelector(state),
+    showOrderBook: orderBookLoaded && !orderFilling,
+    account: accountSelector(state),
+    bar: barSelector(state)
   };
 }
 

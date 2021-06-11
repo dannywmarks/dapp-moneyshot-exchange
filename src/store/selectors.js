@@ -3,17 +3,33 @@ import { get, groupBy, reject, maxBy, minBy } from "lodash";
 import { ETHER_ADDRESS, tokens, ether, GREEN, RED } from "../helpers";
 import moment from "moment";
 
+export const formatBalance = (balance) => {
+  const precision = 100 // 2 decimal places
+
+  balance = ether(balance)
+  balance = Math.round(balance * precision) / precision // Use 2 decimal places
+
+  return balance
+}
+
 const account = (state) => get(state, "web3.account");
 export const accountSelector = createSelector(account, (a) => a);
 
+const web3 = state => get(state, 'web3.connection')
+export const web3Selector = createSelector(web3, w => w)
+
 const tokenLoaded = (state) => get(state, "token.loaded", false);
 export const tokenLoadedSelector = createSelector(tokenLoaded, (tl) => tl);
+
+const token = state => get(state, 'token.contract')
+export const tokenSelector = createSelector(token, t => t)
 
 const barLoaded = (state) => get(state, "bar.loaded", false);
 export const barLoadedSelector = createSelector(barLoaded, (bl) => bl);
 
 const bar = (state) => get(state, "bar.contract");
 export const barSelector = createSelector(bar, (b) => b);
+
 
 // check if both smart contracts are loaded
 export const contractsLoadedSelector = createSelector(
@@ -184,7 +200,7 @@ const decorateOrderBookOrder = (order) => {
     ...order,
     orderType,
     orderTypeClass: orderType === "buy" ? GREEN : RED,
-    orderFillClass: orderType === "buy" ? "sell" : "buy",
+    orderFillAction: orderType === "buy" ? "sell" : "buy",
   };
 };
 
@@ -322,10 +338,70 @@ const buildGraphData = (orders) => {
   return graphData;
 };
 
-const orderCancelling = (state) =>
-  get(state, "exchange.orderCancelling", false);
+const orderCancelling = (state) => get(state, "bar.orderCancelling", false);
 
 export const orderCancellingSelector = createSelector(
   orderCancelling,
   (status) => status
 );
+
+const orderFilling = (state) => get(state, "bar.orderFilling", false);
+
+export const orderFillingSelector = createSelector(
+  orderFilling,
+  (status) => status
+);
+
+// BALANCES
+const balancesLoading = state => get(state, 'bar.balancesLoading', true)
+export const balancesLoadingSelector = createSelector(balancesLoading, status => status)
+
+const etherBalance = state => get(state, 'web3.balance', 0)
+export const etherBalanceSelector = createSelector(
+  etherBalance,
+  (balance) => {
+    return formatBalance(balance)
+  }
+)
+
+const tokenBalance = state => get(state, 'token.balance', 0)
+export const tokenBalanceSelector = createSelector(
+  tokenBalance,
+  (balance) => {
+    return formatBalance(balance)
+  }
+)
+
+const barEtherBalance = state => get(state, 'bar.etherBalance', 0)
+export const barEtherBalanceSelector = createSelector(
+  barEtherBalance,
+  (balance) => {
+    return formatBalance(balance)
+  }
+)
+
+const barTokenBalance = state => get(state, 'bar.tokenBalance', 0)
+export const barTokenBalanceSelector = createSelector(
+  barTokenBalance,
+  (balance) => {
+    return formatBalance(balance)
+  }
+)
+
+const etherDepositAmount = state => get(state, 'bar.etherDepositAmount', null)
+export const etherDepositAmountSelector = createSelector(etherDepositAmount, amount => amount)
+
+const etherWithdrawAmount = state => get(state, 'bar.etherWithdrawAmount', null)
+export const etherWithdrawAmountSelector = createSelector(etherWithdrawAmount, amount => amount)
+
+const tokenDepositAmount = state => get(state, 'bar.tokenDepositAmount', null)
+export const tokenDepositAmountSelector = createSelector(tokenDepositAmount, amount => amount)
+
+const tokenWithdrawAmount = state => get(state, 'bar.tokenWithdrawAmount', null)
+export const tokenWithdrawAmountSelector = createSelector(tokenWithdrawAmount, amount => amount)
+
+const buyOrder = state => get(state, 'bar.buyOrder', {})
+export const buyOrderSelector = createSelector(buyOrder, order => order)
+
+const sellOrder = state => get(state, 'bar.sellOrder', {})
+export const sellOrderSelector = createSelector(sellOrder, order => order)
