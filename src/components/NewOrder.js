@@ -82,7 +82,7 @@ const showForm = (props) => {
           }}
         >
           <div className="form-group small">
-            <label>Buy Sell (DAPP)</label>
+            <label>Buy Sell (SHOT)</label>
             <div className="input-group">
               <input
                 type="text"

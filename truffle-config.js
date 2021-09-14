@@ -2,23 +2,21 @@ require("babel-register");
 require("babel-polyfill");
 require("dotenv").config();
 
-const privateKeys = process.env.PRIVATE_KEYS || ''
+const privateKeys = process.env.PRIVATE_KEYS || "";
 const HDWalletProvider = require("truffle-hdwallet-provider-privkey");
 
-
 module.exports = {
-  
   networks: {
     development: {
       host: "127.0.0.1",
-      port: 7545,
+      port: 8545,
       network_id: "*", // match any network id
     },
     kovan: {
       provider: function () {
         return new HDWalletProvider(
           // Private Key
-          privateKeys.split(','), // array of private keys
+          privateKeys.split(","), // array of private keys
           // Url to an Etherum
           `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
         );
